@@ -5,7 +5,7 @@ import { useGenerationState } from "@/app/states/state"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
-
+import { motion } from 'framer-motion'
 
 export const DropdownForMore = () => {
 
@@ -75,6 +75,7 @@ export const ProfilePage = () => {
     const { user } = useGenerationState()
 
     const [showUpdatePassword, setShowUpdatePassword] = useState<boolean>(false);
+    const [showDialog, setShowDialog] = useState<boolean>(false)
 
     return <>
         <div>
@@ -112,7 +113,8 @@ export const ProfilePage = () => {
             </Link>
         </div >
 
-        {showUpdatePassword ? <UpdatePasswordDialog close={() => { setShowUpdatePassword(false) }} /> : null}
+        {showUpdatePassword ? <UpdatePasswordDialog close={() => { setShowUpdatePassword(false) }} dialog={() => { setShowDialog(true) }} /> : null}
+        {showDialog ? <AlertDialog close={() => { setShowDialog(false) }} sliderColor="bg-green-600" textColor="text-green-600" title="Password Changed" content="Account password successfully changed" color="bg-green-100" /> : null}
     </>
 }
 
@@ -122,7 +124,7 @@ interface UpdatePasswordFields {
     confirmNewPassword: string
 }
 
-const UpdatePasswordDialog = ({ close }: { close: () => void }) => {
+const UpdatePasswordDialog = ({ close, dialog }: { close: () => void, dialog: () => void }) => {
 
     const [inputFields, setInputFields] = useState<UpdatePasswordFields>({
         oldPassword: "",
@@ -151,15 +153,20 @@ const UpdatePasswordDialog = ({ close }: { close: () => void }) => {
                 )
             }
         )
-
-        if (response.ok) {
-            const res = await response.json()
-            if (res.success) {
-                alert("password changed")
-            }
+        const res = await response.json()
+        if (res.success) {
+            close()
+            dialog()
+        } else {
+            setErrorMessage(res.message)
+            setShowDialog(true)
         }
 
     }
+
+
+    const [showDialog, setShowDialog] = useState<boolean>(false)
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     return <>
 
@@ -196,6 +203,8 @@ const UpdatePasswordDialog = ({ close }: { close: () => void }) => {
                 </div>
             </div>
         </div>
+
+        {showDialog ? <AlertDialog close={() => { setShowDialog(false) }} title="Something went wrong" content={errorMessage} color="bg-red-100" textColor={"text-red-600"} sliderColor="bg-red-600" /> : null}
 
     </>
 }
@@ -395,4 +404,41 @@ export const RegisterPage = () => {
             </p>
             <Link className="text-sm flex justify-center" href="/login">Already a user? Login</Link>
         </div></>
+}
+
+export const AlertDialog = ({ close, title, content, color, textColor, sliderColor }: { close: () => void, title: string, content: string, color: string, textColor: string, sliderColor: string }) => {
+
+    useEffect(() => {
+        setTimeout(() => {
+            close()
+        }, 2000)
+    }, [])
+
+    const handleClose = () => {
+        close()
+    }
+
+    return <>
+
+        <div className={`${color} w-1/3 rounded shadow absolute top-10 right-10 overflow-hidden`}>
+            <div className="relative w-full h-full">
+                <button className="absolute top-4 right-4" onClick={() => { handleClose() }}>{closeSVG}</button>
+                <div className="pt-4 pb-4 pl-4 pr-16">
+                    <div className={`${textColor} text-lg font-medium`}>
+                        {title}
+                    </div>
+                    <div className={`${textColor} text-sm font-light`}>
+                        {content}
+                    </div>
+                </div>
+                <motion.div
+                    className={`absolute bottom-0 left-0 h-1 w-full ${sliderColor}`}
+                    initial={{ width: "0%" }}
+                    animate={{ width: "100%" }}
+                    transition={{ duration: 2 }}
+                ></motion.div>
+            </div>
+        </div >
+
+    </>
 }

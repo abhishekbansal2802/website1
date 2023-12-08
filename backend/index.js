@@ -6,6 +6,7 @@ const bodyParser = require("body-parser")
 const cors = require("cors")
 const connect = require("./connection")
 const userRouter = require("./routes/UserRoutes")
+const addressRouter = require("./routes/AddressRoutes")
 
 // initializations 
 const app = express()
@@ -21,6 +22,7 @@ app.use(bodyParser.json())
 
 // methods
 app.use("/api/user", userRouter)
+app.use("/api/address", addressRouter)
 
 // listen server
 const port = process.env.PORT || 8080
