@@ -1,6 +1,6 @@
 "use client"
 
-import { DownArrowSVG, RightArrowSVG, UpArrowSVG, closeSVG, logoutSVG } from "@/app/icons/icons"
+import { DownArrowSVG, RightArrowSVG, UpArrowSVG, closeSVG, homeTagSVG, logoutSVG, otherTagSVG, plusSVG, workTagSVG } from "@/app/icons/icons"
 import { useGenerationState } from "@/app/states/state"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -441,4 +441,261 @@ export const AlertDialog = ({ close, title, content, color, textColor, sliderCol
         </div >
 
     </>
+}
+
+interface Address {
+    flatNo: string,
+    society: string,
+    street: string,
+    city: string,
+    state: string,
+    pincode: string,
+    landmark: string,
+    tag: string
+}
+
+interface ResponseAddress {
+    _id: string
+    flatNo: string,
+    society: string,
+    street: string,
+    city: string,
+    state: string,
+    pincode: string,
+    landmark: string,
+    tag: string
+}
+
+export const AddressList = () => {
+
+    const [showAddAddress, setShowAddress] = useState<boolean>(false);
+
+    const [address, setAddress] = useState<Array<ResponseAddress>>([]);
+
+    const getAddress = async () => {
+        const response = await fetch(
+            `http://localhost:8080/api/address/${localStorage.getItem("token")}`
+        )
+        const res = await response.json()
+        if (res.success) {
+            setAddress([...res.address])
+            console.log(res)
+            console.log(address)
+        }
+    }
+
+    const [showDialog, setShowDialog] = useState<boolean>(false)
+
+    useEffect(() => {
+        getAddress()
+    }, [])
+
+
+    return <>
+
+        <div className="w-1/2">
+            <div className="flex flex-col gap-5">
+                {address.map((e) => <AddressCard address={e} appendAddress={() => { getAddress() }} />)}
+            </div>
+        </div>
+
+        {address.length == 0 ? <>
+            <div className="w-full h-full flex justify-center items-center text-sm text-gray-500 font-light">
+                No addresses added start adding by clicking plus icon
+            </div>
+        </> : null
+        }
+
+        <button onClick={() => { setShowAddress(true) }} className="absolute bottom-8 right-8 z-50 w-14 h-14 bg-slate-900 shadow cursor-pointer rounded-full flex justify-center items-center">
+            {plusSVG}
+        </button>
+
+        {
+            showAddAddress ? <AddAddress showDialog={() => { setShowDialog(true) }} appendAddress={getAddress} close={() => { setShowAddress(false) }} /> : null
+        }
+
+        {
+            showDialog ? <AlertDialog close={() => { setShowDialog(false) }} title="Address Added" content="Address entered was added" color="bg-green-100" textColor="text-green-600" sliderColor="bg-green-600" /> : null
+        }
+
+    </>
+
+}
+
+const AddressCard = ({ address, appendAddress }: { address: ResponseAddress, appendAddress: () => void }) => {
+
+    const svg = address.tag == "HOME" ? homeTagSVG : address.tag == "WORK" ? workTagSVG : otherTagSVG
+
+    const removeAddressHandler = async () => {
+        const response = await fetch(
+            `http://localhost:8080/api/address/${localStorage.getItem("token")}/${address._id}`,
+            {
+                method: "DELETE"
+            }
+        )
+        const res = await response.json()
+        if (res.success) {
+            appendAddress()
+        }
+    }
+
+    return <>
+
+        <div className="w-full bg-gray-50 shadow-sm rounded p-4">
+            <div className="flex flex-col gap-3 text-sm relative">
+                <div className="absolute top-0 right-0 scale-75" >
+                    <button onClick={() => { removeAddressHandler() }}>
+                        {closeSVG}
+                    </button>
+                </div>
+                <div className="flex-row flex gap-1 items-center">
+                    <span className="scale-75 fill-gray-700">
+                        {svg}
+                    </span>
+                    <span className="text-sm text-gray-700">
+                        {address.tag.toLowerCase()}
+                    </span>
+                </div>
+                <div className="text-gray-800">
+                    <div>
+                        <span className="">
+                            {address.flatNo}, {address.society}, {address.street}
+                        </span>
+                    </div>
+                    <div>
+                        <span>
+                            {address.city}, {address.state}, {address.pincode}
+                        </span>
+                    </div>
+                    <div>
+                        <span>
+                            near {address.landmark}
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </>
+}
+
+export const AddAddress = ({ close, appendAddress, showDialog }: { close: () => void, appendAddress: () => void, showDialog: () => void }) => {
+
+    const [address, setAddress] = useState<Address>(
+        {
+            flatNo: "",
+            society: "",
+            street: "",
+            city: "",
+            state: "",
+            pincode: "",
+            landmark: "",
+            tag: ""
+        }
+    );
+
+    const submitHandler = async () => {
+        if (address.flatNo == "" || address.society == "" || address.city == "" || address.landmark == "" || address.pincode == "" || address.state == "" || address.street == "" || address.tag == "") return
+        const response = await fetch(
+            `http://localhost:8080/api/address/add/${localStorage.getItem('token')}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(
+                    {
+                        flatNo: address.flatNo,
+                        society: address.society,
+                        street: address.street,
+                        city: address.city,
+                        state: address.state,
+                        pincode: address.pincode,
+                        landmark: address.landmark,
+                        tag: address.tag
+                    }
+                )
+            }
+        )
+        const res = await response.json()
+        if (res.success) {
+            close()
+            appendAddress()
+            showDialog()
+        } else {
+
+        }
+    }
+
+    return <>
+
+        <div className="w-screen h-screen absolute top-0 left-0 bg-black bg-opacity-70 z-50 flex justify-center items-center">
+            <div className="w-1/3 p-4 bg-white rounded ">
+                <div className="w-full h-full relative flex flex-col gap-3">
+                    <div className="absolute top-0 right-0">
+                        <button onClick={() => { close() }}>
+                            {closeSVG}
+                        </button>
+                    </div>
+                    <div className="flex flex-col">
+                        <div className="text-2xl font-medium text-gray-700 ">
+                            Add Address
+                        </div>
+                        <div className="text-sm font-light text-gray-500">
+                            Fill out the details below to add address
+                        </div>
+                    </div>
+                    <div className="flex flex-row gap-2">
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label htmlFor="flatno" className="text-sm text-gray-500">Flat No / House No</label>
+                            <input type="text" value={address.flatNo} onChange={(e) => setAddress({ ...address, flatNo: e.target.value })} id="flatno" className="w-full h-12 bg-gray-50 border border-slate-300 px-2 py-2 outline-none" />
+                        </div>
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label htmlFor="society" className="text-sm text-gray-500">society</label>
+                            <input type="text" value={address.society} onChange={(e) => setAddress({ ...address, society: e.target.value })} id="society" className="w-full h-12 bg-gray-50 border border-slate-300 px-2 py-2 outline-none" />
+                        </div>
+                    </div>
+                    <div className="flex flex-row gap-2">
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label htmlFor="street" className="text-sm text-gray-500">street</label>
+                            <input type="text" id="street" value={address.street} onChange={(e) => setAddress({ ...address, street: e.target.value })} className="w-full h-12 bg-gray-50 border border-slate-300 px-2 py-2 outline-none" />
+                        </div>
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label htmlFor="city" className="text-sm text-gray-500">city</label>
+                            <input type="text" id="city" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} className="w-full h-12 bg-gray-50 border border-slate-300 px-2 py-2 outline-none" />
+                        </div>
+                    </div>
+                    <div className="flex flex-row gap-2">
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label htmlFor="state" className="text-sm text-gray-500">state</label>
+                            <input type="tel" id="state" value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} className="w-full h-12 bg-gray-50 border border-slate-300 px-2 py-2 outline-none" />
+                        </div>
+                        <div className="flex-1 flex flex-col gap-1">
+                            <label htmlFor="pincode" className="text-sm text-gray-500">pincode</label>
+                            <input type="text" id="pincode" value={address.pincode} onChange={(e) => setAddress({ ...address, pincode: e.target.value })} className="w-full h-12 bg-gray-50 border border-slate-300 px-2 py-2 outline-none" />
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <label htmlFor="landmark" className="text-sm text-gray-500">landmark</label>
+                        <input type="text" id="landmark" value={address.landmark} onChange={(e) => setAddress({ ...address, landmark: e.target.value })} className="w-full h-12 bg-gray-50 border border-slate-300 px-2 py-2 outline-none" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <div className="text-sm text-gray-500">Tag</div>
+                        <div className="w-full h-11 flex flex-row bg-gray-50 border border-slate-300 rounded-full overflow-hidden">
+                            <div onClick={() => { setAddress({ ...address, tag: "HOME" }) }} className={`cursor-pointer transition duration-150 ${address.tag == "HOME" ? "bg-slate-900 fill-gray-100 text-gray-100" : " text-gray-600 fill-gray-600"} text-sm  flex justify-center items-center flex-1 w-full h-full border-r border-r-slate-300`}><span className=" scale-75">{homeTagSVG}</span>Home</div>
+                            <div onClick={() => { setAddress({ ...address, tag: "WORK" }) }} className={`cursor-pointer transition duration-150 ${address.tag == "WORK" ? "bg-slate-900 fill-gray-100 text-gray-100" : " text-gray-600 fill-gray-600"} text-sm  flex justify-center items-center flex-1 w-full h-full border-r border-r-slate-300`}><span className=" scale-75">{workTagSVG}</span> Work</div>
+                            <div onClick={() => { setAddress({ ...address, tag: "OTHER" }) }} className={`cursor-pointer transition duration-150 ${address.tag == "OTHER" ? "bg-slate-900 fill-gray-100 text-gray-100" : " text-gray-600 fill-gray-600"}  text-sm  flex justify-center items-center flex-1 w-full h-full `}><span className=" scale-75">{otherTagSVG}</span> other</div>
+                        </div>
+                    </div>
+                    <div>
+                        <button className="uppercase w-full h-12 bg-slate-900 text-white" onClick={() => { submitHandler() }}>submit</button>
+                    </div>
+                </div>
+            </div >
+        </div >
+
+
+    </>
+
 }

@@ -42,4 +42,34 @@ router.post("/add/:token", async (req, res) => {
     }
 })
 
+router.get("/:token", async (req, res) => {
+    const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+    if (!id) return errorHandler(res, 401, "not authorized")
+    try {
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "not authorized")
+        const address = await AddressModel.find({ userId: user._id })
+        console.log(address)
+        return res.status(200).json({ success: true, message: "address fetched", address })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.delete("/:token/:id", async (req, res) => {
+    const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+    if (!id) return errorHandler(res, 401, "not authorized")
+    try {
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "not authorized")
+        const deletedAddress = await AddressModel.deleteOne({ _id: req.params.id })
+        user.address = user.address.filter((e) => e.toString() != req.params.id.toString())
+        await user.save()
+        return res.status(200).json({ success: true, message: "address deleted" })
+    }
+    catch (err) {
+        return errorHandler(res)
+    }
+})
+
 module.exports = router

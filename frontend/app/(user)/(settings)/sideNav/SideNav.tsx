@@ -7,7 +7,7 @@ export default function SideNav() {
     return <>
 
         <div className="w-72 h-full pb-4 px-4">
-            <div className="w-full h-full bg-white rounded shadow p-4">
+            <div className="w-full h-full bg-white rounded shadow-sm p-4">
                 <div className="flex h-full flex-col">
                     <div className="flex h-full flex-col gap-10">
                         {

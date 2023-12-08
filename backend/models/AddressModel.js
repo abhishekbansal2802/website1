@@ -3,41 +3,42 @@ const mongoose = require("mongoose")
 const schema = new mongoose.Schema(
     {
         flatNo: {
-            type: string,
+            type: String,
             required: true,
         },
         society: {
-            type: string,
+            type: String,
             required: true,
         },
         street: {
-            type: string,
+            type: String,
             required: true,
         },
         city: {
-            type: string,
+            type: String,
             required: true,
         },
         state: {
-            type: string,
+            type: String,
             required: true,
         },
         pincode: {
-            type: string,
+            type: String,
             required: true,
         },
         landmark: {
-            type: string,
+            type: String,
             required: true,
         },
         tag: {
-            type: string,
+            type: String,
             required: true,
         },
         userId: {
             type: mongoose.Schema.Types.ObjectId,
             required: true,
-            ref: "User"
+            ref: "User",
+            select: false
         }
     }
 )
