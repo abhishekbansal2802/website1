@@ -1,6 +1,6 @@
 "use client"
 
-import { DownArrowSVG, UpArrowSVG, logoutSVG } from "@/app/icons/icons"
+import { DownArrowSVG, RightArrowSVG, UpArrowSVG, closeSVG, logoutSVG } from "@/app/icons/icons"
 import { useGenerationState } from "@/app/states/state"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -46,6 +46,7 @@ export const DropdownForMore = () => {
         }
     }
 
+
     return <>
         {
             loggedIn ?
@@ -73,6 +74,8 @@ export const ProfilePage = () => {
 
     const { user } = useGenerationState()
 
+    const [showUpdatePassword, setShowUpdatePassword] = useState<boolean>(false);
+
     return <>
         <div>
             <div className="text-2xl text-gray-700 font-normal">
@@ -98,14 +101,102 @@ export const ProfilePage = () => {
                 {user?.contact}
             </div>
         </div>
-        <div>
-            <div className="text-2xl text-gray-700 font-normal">
-                Change Password
-            </div>
-            <div className="text-md text-gray-600">
-                {user?.contact}
+        <div className="">
+            <button onClick={() => { setShowUpdatePassword(!showUpdatePassword) }} className="flex-row flex gap-3 items-center w-fit text-xl rounded-full hover:bg-gray-100 duration-100 transition-all px-3 py-2 text-gray-700 font-normal ">
+                Update Password {RightArrowSVG}
+            </button>
+        </div >
+        <div className="">
+            <Link href="/address" className="flex-row flex gap-3 items-center w-fit text-xl rounded-full hover:bg-gray-100 duration-100 transition-all px-3 py-2 text-gray-700 font-normal ">
+                View Address {RightArrowSVG}
+            </Link>
+        </div >
+
+        {showUpdatePassword ? <UpdatePasswordDialog close={() => { setShowUpdatePassword(false) }} /> : null}
+    </>
+}
+
+interface UpdatePasswordFields {
+    oldPassword: string,
+    newPassword: string,
+    confirmNewPassword: string
+}
+
+const UpdatePasswordDialog = ({ close }: { close: () => void }) => {
+
+    const [inputFields, setInputFields] = useState<UpdatePasswordFields>({
+        oldPassword: "",
+        newPassword: "",
+        confirmNewPassword: ""
+    })
+
+    const updatePasswordHandler = async () => {
+        if (inputFields.newPassword == "" || inputFields.oldPassword == "" || inputFields.confirmNewPassword == "") return
+
+        if (inputFields.newPassword != inputFields.confirmNewPassword) return
+
+        const response = await fetch(
+            `http://localhost:8080/api/user/change/password/${localStorage.getItem("token")}`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(
+                    {
+                        password: inputFields.oldPassword,
+                        newPassword: inputFields.newPassword,
+                        confNewPassword: inputFields.confirmNewPassword,
+                    }
+                )
+            }
+        )
+
+        if (response.ok) {
+            const res = await response.json()
+            if (res.success) {
+                alert("password changed")
+            }
+        }
+
+    }
+
+    return <>
+
+        <div className="w-screen h-screen bg-black bg-opacity-60 absolute top-0 left-0 z-40">
+            <div className="w-full h-full flex justify-center items-center">
+                <div className="w-1/3 bg-white rounded p-4">
+                    <div className="flex flex-col gap-3 relative">
+                        <div className="absolute top-0 right-0">
+                            <button onClick={() => { close() }}>{closeSVG}</button>
+                        </div>
+                        <div className="text-xl font-medium text-gray-700">
+                            Change Password
+                        </div>
+                        <div>
+                            <div className="flex flex-col gap-3 w-full">
+                                <div className="w-full flex flex-col gap-1">
+                                    <label htmlFor="oldPassword" className="text-sm text-gray-500">old password</label>
+                                    <input value={inputFields.oldPassword} onChange={(e) => setInputFields({ ...inputFields, oldPassword: e.target.value })} type="password" id="oldPassword" className="w-full h-12 bg-gray-50 outline-none border border-slate-300 px-2 py-2" />
+                                </div>
+                                <div className="w-full flex flex-col gap-1">
+                                    <label htmlFor="newPassword" className="text-sm text-gray-500">New password</label>
+                                    <input value={inputFields.newPassword} onChange={(e) => setInputFields({ ...inputFields, newPassword: e.target.value })} type="password" id="newPassword" className="w-full h-12 bg-gray-50 outline-none border border-slate-300 px-2 py-2" />
+                                </div>
+                                <div className="w-full flex flex-col gap-1">
+                                    <label htmlFor="confNewPass" className="text-sm text-gray-500">Confirm new password</label>
+                                    <input value={inputFields.confirmNewPassword} onChange={(e) => setInputFields({ ...inputFields, confirmNewPassword: e.target.value })} type="password" id="confNewPass" className="w-full h-12 bg-gray-50 outline-none border border-slate-300 px-2 py-2" />
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <button onClick={() => { updatePasswordHandler() }} className="uppercase w-full h-12 bg-slate-900 text-white">update</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
     </>
 }
 

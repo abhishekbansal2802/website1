@@ -70,6 +70,25 @@ router.get("/me/:token", async (req, res) => {
     }
 })
 
-
+// change password
+router.put("/change/password/:token", async (req, res) => {
+    const { password, newPassword, confNewPassword } = req.body
+    if (!password || !newPassword || !confNewPassword) return errorHandler(res, 404, "not enough data")
+    if (newPassword != confNewPassword) return errorHandler(res, 404, "passwords are not same")
+    const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+    if (!id) return errorHandler(res, 401, "not authorized")
+    try {
+        const user = await UserModel.findById(id).select("+password");
+        if (!user) return errorHandler(res, 404, "not found")
+        const compare = await bcrypt.compare(password, user.password);
+        if (!compare) return errorHandler(res, 401, "password not same")
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+        user.password = hashedPassword;
+        await user.save()
+        return res.status(200).json({ success: true, message: "password changed" })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
 
 module.exports = router
