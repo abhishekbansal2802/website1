@@ -1,3 +1,4 @@
+// imports
 const expresss = require("express");
 const errorHandler = require("../utils/errorHandler");
 const UserModel = require("../models/UserModel");
@@ -6,6 +7,7 @@ const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
 const path = require("path")
 
+// initializations
 const router = expresss.Router()
 dotenv.config(
     {
@@ -13,6 +15,7 @@ dotenv.config(
     }
 )
 
+// register a user 
 router.post("/register", async (req, res) => {
     const { email, name, password, contactNumber } = req.body;
     if (!email || !name || !password || !contactNumber) return errorHandler(res, 401, "not enough data")
@@ -37,6 +40,7 @@ router.post("/register", async (req, res) => {
     }
 })
 
+// login a user
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return errorHandler(res, 401, "not enough data")
@@ -52,5 +56,20 @@ router.post("/login", async (req, res) => {
         return res.send("new world")
     }
 })
+
+// get profile info about a user
+router.get("/me/:token", async (req, res) => {
+    const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY);
+    if (!id) return errorHandler(res, 401, "not authorized")
+    try {
+        let user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 404, "not found")
+        return res.status(200).json({ success: true, message: "user found", user: user })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+
 
 module.exports = router
