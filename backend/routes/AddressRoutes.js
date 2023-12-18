@@ -49,7 +49,6 @@ router.get("/:token", async (req, res) => {
         const user = await UserModel.findById(id)
         if (!user) return errorHandler(res, 401, "not authorized")
         const address = await AddressModel.find({ userId: user._id })
-        console.log(address)
         return res.status(200).json({ success: true, message: "address fetched", address })
     } catch (err) {
         return errorHandler(res)

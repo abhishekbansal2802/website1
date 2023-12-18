@@ -1,5 +1,6 @@
-import { LogoutButton } from "@/app/Components/client/client"
-import { UserSVG, addressSVG, logoutSVG, ordersSVG, wishlistSVG } from "@/app/icons/icons"
+import { LogoutButton, OptionalSideNav } from "@/app/Components/client/client"
+import { NavigationItems } from "@/app/Components/server/server"
+import { UserSVG, addressSVG, cartSVG, logoutSVG, ordersSVG, sellerTagSVG, wishlistSVG } from "@/app/icons/icons"
 import Link from "next/link"
 
 export default function SideNav() {
@@ -13,6 +14,7 @@ export default function SideNav() {
                         {
                             NavigationPanelItems.map((e) => <NavigationItems text={e.text} icon={e.icon} link={e.link} />)
                         }
+                        <OptionalSideNav />
                     </div>
                     <div className="flex-1 h-full w-full">
                     </div>
@@ -54,17 +56,10 @@ const NavigationPanelItems: Array<NavigationPanelItem> = [
         text: "Orders",
         link: "/orders",
     },
+    {
+        icon: cartSVG,
+        text: "cart",
+        link: '/cart'
+    }
 ]
 
-const NavigationItems = ({ text, icon, link }: { text: string, icon: JSX.Element, link: string }) => {
-    return <Link href={link}>
-        <div className="flex flex-row gap-3 items-center">
-            <span className="scale-75 fill-gray-400">
-                {icon}
-            </span>
-            <span>
-                {text}
-            </span>
-        </div>
-    </Link>
-}

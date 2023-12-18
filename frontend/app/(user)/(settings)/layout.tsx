@@ -10,7 +10,7 @@ export default function SettingsLayout({
             <div>
                 <SideNav></SideNav>
             </div>
-            <div className="flex-1 h-full w-full">
+            <div className=" flex-1 h-full w-full">
                 {children}
             </div>
         </div>

@@ -13,6 +13,7 @@ interface User {
     name: string,
     email: string
     contact: string
+    userType: string,
 }
 
 export const useGenerationState = create<GenerationState>()((set) => ({

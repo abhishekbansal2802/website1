@@ -5,7 +5,8 @@ const UserModel = require("../models/UserModel");
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
-const path = require("path")
+const path = require("path");
+const ProductModel = require("../models/ProductModel");
 
 // initializations
 const router = expresss.Router()
@@ -35,7 +36,6 @@ router.post("/register", async (req, res) => {
         return res.status(201).json({ success: true, message: "user created", token })
 
     } catch (err) {
-        console.log(err)
         return errorHandler(res)
     }
 })
@@ -52,7 +52,6 @@ router.post("/login", async (req, res) => {
         const token = jwt.sign({ id: user._id }, process.env.SECRET_KEY)
         return res.status(200).json({ success: true, message: "logged in", token })
     } catch (err) {
-        console.log(err)
         return res.send("new world")
     }
 })
@@ -86,6 +85,140 @@ router.put("/change/password/:token", async (req, res) => {
         user.password = hashedPassword;
         await user.save()
         return res.status(200).json({ success: true, message: "password changed" })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+// add product to user cart
+router.put("/cart/add/:id/:token", async (req, res) => {
+    try {
+        const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+        if (!id) return errorHandler(res, 401, "not authorized")
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        const product = await ProductModel.findById(req.params.id)
+        if (!product) return errorHandler(res, 404, "not found")
+        const items = user.cart.find((e) => e.productId.toString() == product._id.toString())
+        if (items) return errorHandler(res, 401, "already exists")
+        user.cart.push({
+            productId: product._id,
+            quantity: 1,
+        })
+        await user.save()
+        return res.status(200).json({ success: true, message: "added to cart" })
+    } catch (err) {
+        console.log(err)
+        return errorHandler(res)
+    }
+})
+
+router.get("/cart/:token", async (req, res) => {
+    try {
+        const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+        if (!id) return errorHandler(res, 401, "not found")
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "not found")
+        return res.status(200).json({ success: true, message: "cart send", cart: user.cart })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.put("/cart/update/quantity", async (req, res) => {
+    try {
+        const { token, id, quantity } = req.body;
+        if (!token || !id || !quantity) return errorHandler(res, 401, "not enough data")
+        const decodedToken = jwt.decode(token, process.env.SECRET_KEY)
+        if (!decodedToken.id) return errorHandler(res, 401, "not enough data")
+        const user = await UserModel.findById(decodedToken.id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        const product = await ProductModel.findById(id)
+        if (!product) return errorHandler(res, 404, "product not found")
+        if (quantity > product.stock) return errorHandler(res, 401, "not enough quantity")
+        user.cart = user.cart.map((e) => {
+            if (e.productId.toString() === id.toString()) {
+                return {
+                    productId: id,
+                    quantity: quantity,
+                }
+            }
+            return e
+        })
+        await user.save()
+        return res.status(200).json({ success: true, message: "user updated successfully" })
+    } catch (err) {
+        console.log(err)
+        return errorHandler(res)
+    }
+})
+
+router.delete("/cart/:id/:token", async (req, res) => {
+    try {
+        const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+        if (!id) return errorHandler(res, 401, "data not found")
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        user.cart = user.cart.filter((e) => e.productId.toString() !== req.params.id.toString())
+        await user.save()
+        return res.status(200).json({ success: true, message: "removed from cart" })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.get("/wishlist/:token/:id", async (req, res) => {
+    try {
+        const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+        if (!id) return errorHandler(res, 401, " not enough")
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        const contains = user.wishlist.find((e) => e.toString() === req.params.id)
+        console.log(contains)
+        if (!contains) return errorHandler(res, 404, "product not in wishlist")
+        return res.status(200).json({ success: true, message: "product in wishlist" })
+    } catch (err) {
+        console.log(err)
+        return errorHandler(res)
+    }
+})
+
+router.put("/wishlist/:token/:id", async (req, res) => {
+    try {
+        const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+        if (!id) return errorHandler(res, 401, " not enough")
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        user.wishlist.push(req.params.id)
+        await user.save()
+        return res.status(200).json({ success: true, message: "product added" })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.delete("/wishlist/:token/:id", async (req, res) => {
+    try {
+        const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+        if (!id) return errorHandler(res, 401, " not enough")
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        user.wishlist = user.wishlist.filter((e) => e.toString() !== req.params.id.toString())
+        await user.save()
+        return res.status(200).json({ success: true, message: "product added" })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.get("/wishlist/:token", async (req, res) => {
+    try {
+        const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+        if (!id) return errorHandler(res, 401, " not enough")
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        const products = await ProductModel.find({ _id: user.wishlist })
+        return res.status(200).json({ success: true, message: "wishlist got", products })
     } catch (err) {
         return errorHandler(res)
     }
