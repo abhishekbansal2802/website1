@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import './globals.css'
 import Navbar from './Components/Navbar/Navbar'
+import { cartSVG, newCartSVG } from './icons/icons'
+import Link from 'next/link'
 
 const inter = Poppins({ subsets: ["latin"], weight: ["100", "200", "300", "400", "500", "600", "700", '800', "900"] })
 
@@ -22,6 +24,9 @@ export default function RootLayout({
         <div className='flex-1 h-full overflow-hidden'>
           {children}
         </div>
+        <Link href="/cart" className='absolute bottom-8 right-8 w-16 h-16 fill-white z-40 rounded-full bg-slate-900 flex justify-center items-center'>
+          {newCartSVG}
+        </Link>
       </body>
     </html>
   )

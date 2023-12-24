@@ -485,4 +485,13 @@ router.get("/:id", async (req, res) => {
 
 })
 
+router.get("/reviews/:id", async (req, res) => {
+    try {
+        const product = await ProductModel.findById(req.params.id)
+        if (!product) return errorHandler(res, 404, "product not found")
+    } catch (err) {
+
+    }
+})
+
 module.exports = router;

@@ -306,11 +306,11 @@ export default function Page() {
     return <>
 
         <div className="w-full h-full px-4 pb-4 flex flex-col gap-4">
-            <div className="w-full h-full bg-white rounded shadow-sm p-4 flex flex-row justify-between items-center" >
+            <div className="w-full h-16 bg-white rounded shadow-sm p-4 flex flex-row justify-between items-center" >
                 <div>
                     Ready to list the product?
                 </div>
-                <div>
+                <div className="">
                     <div className="flex flex-row gap-4">
                         <button onClick={() => { listProduct() }} className="px-4 py-2 rounded bg-green-100">
                             <span className="text-green-600">
@@ -329,12 +329,12 @@ export default function Page() {
                 </div>
 
             </div>
-            <div className="w-full h-full bg-white shadow-sm rounded p-4 flex flex-col gap-4">
-                <div className="w-full h-full flex flex-row gap-4">
+            <div className="w-full h-full overflow-y-scroll bg-white shadow-sm rounded p-4 flex flex-col gap-4">
+                <div className="w-full h-fit flex flex-row gap-4">
                     <div className="flex-1 w-full h-full p-4">
                         <div className="flex flex-col gap-4 w-full h-full">
                             <div className="w-full aspect-square border border-dashed border-slate-900">
-                                <label htmlFor="mainImage" className="w-full h-full flex justify-center items-center">{image1 ? <img src={URL.createObjectURL(image1)} /> : product.mainImage ? <img src={`http://localhost:8080/${params.id}/${product.mainImage.imageName}`} /> : "+"}</label>
+                                <label htmlFor="mainImage" className="w-full h-full flex overflow-hidden justify-center items-center">{image1 ? <img className="w-full" src={URL.createObjectURL(image1)} /> : product.mainImage ? <img className="w-full" src={`http://localhost:8080/${params.id}/${product.mainImage.imageName}`} /> : "+"}</label>
                                 <input
                                     type="file"
                                     className="hidden"
@@ -346,9 +346,9 @@ export default function Page() {
                             </div>
                             <div className="flex flex-row gap-1">
                                 <div className="flex-1 w-full aspect-square border border-dashed border-slate-900">
-                                    <label htmlFor="image2" className="flex justify-center items-center w-full h-full">
+                                    <label htmlFor="image2" className="flex overflow-hidden justify-center items-center w-full h-full">
                                         {
-                                            image2 ? <img src={URL.createObjectURL(image2)} /> : product.images?.image1 ? <img src={`http://localhost:8080/${params.id}/${product.images.image1.imageName}`} /> : "+"
+                                            image2 ? <img src={URL.createObjectURL(image2)} /> : product.images?.image1 ? <img className="w-full" src={`http://localhost:8080/${params.id}/${product.images.image1.imageName}`} /> : "+"
                                         }
                                     </label>
                                     <input
@@ -359,9 +359,9 @@ export default function Page() {
                                     />
                                 </div>
                                 <div className="flex-1 w-full aspect-square border border-dashed border-slate-900">
-                                    <label htmlFor="image3" className="flex justify-center items-center w-full h-full">
+                                    <label htmlFor="image3" className="flex overflow-hidden justify-center items-center w-full h-full">
                                         {
-                                            image3 ? <img src={URL.createObjectURL(image3)} /> : product.images?.image2 ? <img src={`http://localhost:8080/${params.id}/${product.images.image2.imageName}`} /> : "+"
+                                            image3 ? <img src={URL.createObjectURL(image3)} /> : product.images?.image2 ? <img className="w-full" src={`http://localhost:8080/${params.id}/${product.images.image2.imageName}`} /> : "+"
 
                                         }
                                     </label>
@@ -373,9 +373,9 @@ export default function Page() {
                                     />
                                 </div>
                                 <div className="flex-1 w-full aspect-square border border-dashed border-slate-900">
-                                    <label htmlFor="image4" className="flex justify-center items-center w-full h-full">
+                                    <label htmlFor="image4" className="flex overflow-hidden justify-center items-center w-full h-full">
                                         {
-                                            image4 ? <img src={URL.createObjectURL(image4)} /> : product.images?.image3 ? <img src={`http://localhost:8080/${params.id}/${product.images.image3.imageName}`} /> : "+"
+                                            image4 ? <img src={URL.createObjectURL(image4)} /> : product.images?.image3 ? <img className="w-full" src={`http://localhost:8080/${params.id}/${product.images.image3.imageName}`} /> : "+"
                                         }
                                     </label>
                                     <input
@@ -386,9 +386,9 @@ export default function Page() {
                                     />
                                 </div>
                                 <div className="flex-1 w-full aspect-square border border-dashed border-slate-900">
-                                    <label htmlFor="image5" className="flex justify-center items-center w-full h-full">
+                                    <label htmlFor="image5" className="flex overflow-hidden justify-center items-center w-full h-full">
                                         {
-                                            image5 ? <img src={URL.createObjectURL(image5)} /> : product.images?.image4 ? <img src={`http://localhost:8080/${params.id}/${product.images.image4.imageName}`} /> : "+"
+                                            image5 ? <img src={URL.createObjectURL(image5)} /> : product.images?.image4 ? <img className="w-full" src={`http://localhost:8080/${params.id}/${product.images.image4.imageName}`} /> : "+"
 
                                         }
                                     </label>
@@ -532,7 +532,7 @@ export default function Page() {
                             </div> : null}
                             <div className="w-full h-64 border border-dashed border-slate-900 p-4 flex flex-row gap-4">
                                 <div className="h-full aspect-square border border-slate-900 border-dashed">
-                                    <label htmlFor="featureImage" className="h-full flex justify-center items-center">{featureImage ? <img src={URL.createObjectURL(featureImage)} /> : "+"}</label>
+                                    <label htmlFor="featureImage" className="h-full flex justify-center overflow-hidden items-center">{featureImage ? <img className="w-full" src={URL.createObjectURL(featureImage)} /> : "+"}</label>
                                     <input type="file" id="featureImage" className="hidden" onChange={(e) => { setFeatureImage(e.target.files?.[0]) }} />
                                 </div>
                                 <div className="w-full flex flex-col gap-4">
@@ -562,7 +562,7 @@ const FeatureMap = ({ product }: { product: any }) => {
     return <>
 
         <div className="w-full h-64 p-4 flex flex-row gap-4">
-            <div className="h-full aspect-square flex justify-center items-center">
+            <div className="h-full aspect-square overflow-hidden flex justify-center items-center">
                 <img src={`http://localhost:8080/${product.image.imageUrl}`} className="w-full" />
             </div>
             <div className="flex-col flex w-full gap-4">

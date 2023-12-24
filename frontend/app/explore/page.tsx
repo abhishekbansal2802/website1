@@ -17,7 +17,7 @@ export default async function Page() {
     return <>
 
         <div className="w-full h-full px-4 pb-4">
-            <div className="w-full h-full p-4 bg-white shadow-sm rounded">
+            <div className="w-full h-full p-4 bg-white shadow-sm rounded overflow-y-scroll">
                 <div className="flex flex-col gap-10 ">
                     <HeaderForExplore ></HeaderForExplore>
                     <div>

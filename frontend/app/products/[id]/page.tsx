@@ -1,4 +1,4 @@
-import { AddToCartAndBuyNow, AddToWishlist } from "@/app/Components/client/client"
+import { AddToCartAndBuyNow, AddToWishlist, ReviewPortion } from "@/app/Components/client/client"
 import { FeaturesCard } from "@/app/Components/server/server"
 import { starSVG } from "@/app/icons/icons"
 import { redirect } from "next/navigation"
@@ -17,21 +17,21 @@ export default async function Page({ params }: { params: { id: string } }) {
             <div className="w-full h-full flex flex-row gap-4">
                 <div className="flex-1 w-full h-full p-4">
                     <div className="w-full flex flex-col gap-2 ">
-                        <div className="shadow rounded w-full aspect-square bg-white flex justify-center items-center">
-                            <img src={`http://localhost:8080/${params.id}/${product.mainImage.imageName}`} alt="" />
+                        <div className="overflow-hidden shadow rounded w-full aspect-square bg-white flex justify-center items-center">
+                            <img className="w-full" src={`http://localhost:8080/${params.id}/${product.mainImage.imageName}`} alt="" />
                         </div>
                         <div className="w-full flex flex-row gap-2">
-                            <div className="shadow rounded flex-1 w-full aspect-square bg-white flex justify-center items-center">
-                                <img src={`http://localhost:8080/${params.id}/${product.images.image1.imageName}`} alt="" />
+                            <div className="overflow-hidden shadow rounded flex-1 w-full aspect-square bg-white flex justify-center items-center">
+                                <img className="w-full" src={`http://localhost:8080/${params.id}/${product.images.image1.imageName}`} alt="" />
                             </div>
-                            <div className="shadow rounded flex-1 w-full aspect-square bg-white flex justify-center items-center">
-                                <img src={`http://localhost:8080/${params.id}/${product.images.image2.imageName}`} alt="" />
+                            <div className="overflow-hidden shadow rounded flex-1 w-full aspect-square bg-white flex justify-center items-center">
+                                <img className="w-full" src={`http://localhost:8080/${params.id}/${product.images.image2.imageName}`} alt="" />
                             </div>
-                            <div className="shadow rounded flex-1 w-full aspect-square bg-white flex justify-center items-center">
-                                <img src={`http://localhost:8080/${params.id}/${product.images.image3.imageName}`} alt="" />
+                            <div className="overflow-hidden shadow rounded flex-1 w-full aspect-square bg-white flex justify-center items-center">
+                                <img className="w-full" src={`http://localhost:8080/${params.id}/${product.images.image3.imageName}`} alt="" />
                             </div>
-                            <div className="shadow rounded flex-1 w-full aspect-square bg-white flex justify-center items-center">
-                                <img src={`http://localhost:8080/${params.id}/${product.images.image4.imageName}`} alt="" />
+                            <div className="overflow-hidden shadow rounded flex-1 w-full aspect-square bg-white flex justify-center items-center">
+                                <img className="w-full" src={`http://localhost:8080/${params.id}/${product.images.image4.imageName}`} alt="" />
                             </div>
                         </div>
                     </div>
@@ -89,6 +89,16 @@ export default async function Page({ params }: { params: { id: string } }) {
                             product.features.map((e: any, index: number) => <FeaturesCard rev={index % 2 == 0} img={`http://localhost:8080/${params.id}/features/${e.image.imageName}`} title={e.headline} content={e.description} />)
                         }
                     </div>
+                </div>
+            </div>
+            <div className="flex flex-col gap-5 w-full">
+                <div>
+                    <div className="flex justify-center items-center text-2xl font-gray-500 font-medium">
+                        Reviews
+                    </div>
+                </div>
+                <div>
+                    <ReviewPortion productId={params.id} />
                 </div>
             </div>
         </div>

@@ -1,3 +1,5 @@
+import { ManageSellerOrders } from "@/app/Components/client/client";
+
 export default function Page() {
     return <>
 
@@ -12,9 +14,11 @@ export default function Page() {
                             Manage orders status
                         </div>
                     </div>
+                    <div>
+                        <ManageSellerOrders />
+                    </div>
                 </div>
             </div>
         </div>
-
     </>
 }

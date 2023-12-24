@@ -10,6 +10,7 @@ const sellerRouter = require("./routes/SellerRoutes")
 const addressRouter = require("./routes/AddressRoutes")
 const productRouter = require("./routes/ProductRoutes")
 const analyticsRouter = require("./routes/AnalyticsRoutes")
+const orderRouter = require("./routes/OrderRoutes")
 
 // initializations 
 const app = express()
@@ -30,6 +31,7 @@ app.use("/api/address", addressRouter)
 app.use('/api/seller', sellerRouter)
 app.use("/api/product", productRouter)
 app.use("/api/analytics", analyticsRouter)
+app.use("/api/order" , orderRouter)
 
 // listen server
 const port = process.env.PORT || 8080

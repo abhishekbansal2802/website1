@@ -50,24 +50,31 @@ export const DropdownForMore = () => {
 
 
     return <>
-        {
-            loggedIn ?
-                <div className="relative">
-                    <button className="flex flex-row gap-1" onClick={() => { setExpanded(!expanded) }}>More <span className="scale-75">{expanded ? UpArrowSVG : DownArrowSVG}</span></button>
-                    {expanded &&
-                        <div className="absolute -bottom-2 w-48 p-2 -translate-x-1/4 translate-y-full bg-white shadow rounded">
-                            <div className="flex gap-1 flex-col">
+
+        <div className="relative">
+            <button className="flex flex-row gap-1" onClick={() => { setExpanded(!expanded) }}>More <span className="scale-75">{expanded ? UpArrowSVG : DownArrowSVG}</span></button>
+            {expanded &&
+                <div className="z-50 absolute -bottom-2 w-48 p-2 -translate-x-1/4 translate-y-full bg-white shadow rounded">
+                    <div className="flex gap-1 flex-col">
+                        {loggedIn ? <>
+                            <>
                                 <button className="w-full text-md text-left p-2 hover:bg-gray-100 rounded"><Link href="/profile">profile</Link></button>
-                                <button className="w-full text-md text-left p-2 hover:bg-gray-100 rounded">orders</button>
-                                <button className="w-full text-md text-left p-2 hover:bg-gray-100 rounded">wishlist</button>
+                                <button className="w-full text-md text-left p-2 hover:bg-gray-100 rounded"><Link href="/orders">Orders</Link></button>
+                                <button className="w-full text-md text-left p-2 hover:bg-gray-100 rounded"><Link href="/wishlist">Wishlist</Link></button>
                                 <div className="w-full h-[1px] bg-gray-100 rounded"></div>
                                 <button className="w-full text-md text-left p-2 hover:bg-red-100 rounded text-red-600" onClick={() => { logoutHandler() }}>Logout</button>
-                            </div>
-                        </div>
-                    }
-                </div> : <Link href="/login">Login</Link>
-        }
+                            </>
+                        </> :
+                            <>
+                                <button className="w-full text-md text-left p-2 hover:bg-gray-100 rounded"><Link href="/login">Login</Link></button>
+                                <button className="w-full text-md text-left p-2 hover:bg-gray-100 rounded"><Link href="/seller/register">Register As Seller</Link></button>
 
+                            </>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
     </>
 
 }
@@ -494,7 +501,7 @@ export const AddressList = () => {
 
         <div className="w-1/2">
             <div className="flex flex-col gap-5">
-                {address.map((e) => <AddressCard address={e} appendAddress={() => { getAddress() }} />)}
+                {address.map((e) => <AddressCard remove={true} address={e} appendAddress={() => { getAddress() }} />)}
             </div>
         </div>
 
@@ -521,7 +528,7 @@ export const AddressList = () => {
 
 }
 
-const AddressCard = ({ address, appendAddress }: { address: ResponseAddress, appendAddress: () => void }) => {
+export const AddressCard = ({ address, appendAddress, remove }: { address: ResponseAddress, appendAddress: () => void, remove: boolean }) => {
 
     const svg = address.tag == "HOME" ? homeTagSVG : address.tag == "WORK" ? workTagSVG : otherTagSVG
 
@@ -542,11 +549,13 @@ const AddressCard = ({ address, appendAddress }: { address: ResponseAddress, app
 
         <div className="w-full bg-gray-50 shadow-sm rounded p-4">
             <div className="flex flex-col gap-3 text-sm relative">
-                <div className="absolute top-0 right-0 scale-75" >
-                    <button onClick={() => { removeAddressHandler() }}>
-                        {closeSVG}
-                    </button>
-                </div>
+                {
+                    remove ? <div className="absolute top-0 right-0 scale-75" >
+                        <button onClick={() => { removeAddressHandler() }}>
+                            {closeSVG}
+                        </button>
+                    </div> : null
+                }
                 <div className="flex-row flex gap-1 items-center">
                     <span className="scale-75 fill-gray-700">
                         {svg}
@@ -997,7 +1006,7 @@ export const ProductCard = ({ product }: { product: any }) => {
     return <>
 
         <Link href={`/seller/products/${product._id}`} className="w-1/4 p-4 bg-gray-50 rounded shadow-sm flex flex-col gap-2">
-            <div className="w-full aspect-square  rounded flex justify-center items-center bg-white ">
+            <div className="w-full aspect-square  rounded flex overflow-hidden justify-center items-center bg-white ">
                 {product.mainImage ? <img src={`http://localhost:8080/${product._id}/${product.mainImage.imageName}`} className="w-full flex justify-center items-center" /> : null}
             </div>
             <div className="flex flex-col gap-1 w-full">
@@ -1052,9 +1061,6 @@ export const AddToCartAndBuyNow = ({ id }: { id: string }) => {
 
         const res = await response.json()
         console.log(res)
-        if (res.success) {
-            alert("added to cart")
-        }
 
     }
 
@@ -1143,8 +1149,8 @@ export const ProductCartCard = ({ productId, quantity, update }: { productId: an
 
         {product ? <div className="w-full h-44 shadow-sm rounded p-4 bg-gray-50">
             <div className="w-full h-full flex flex-row gap-4">
-                <div className="h-full aspect-square bg-white flex justify-center items-center rounded">
-                    <img src={`http://localhost:8080/${productId}/${product.mainImage.imageName}`} alt="" />
+                <div className="h-full overflow-hidden aspect-square bg-white flex justify-center items-center rounded">
+                    <img className="w-full" src={`http://localhost:8080/${productId}/${product.mainImage.imageName}`} alt="" />
                 </div >
                 <div className="flex-1 w-full h-full flex flex-col justify-between">
 
@@ -1208,50 +1214,6 @@ export const ProductCartCard = ({ productId, quantity, update }: { productId: an
                 </div>
             </div >
         }
-    </>
-}
-
-export const PriceFeedForCart = () => {
-    return <>
-
-        <div className="w-full h-full p-4 flex flex-col gap-6">
-            <div className="text-3xl font-medium text-gray-400">
-                Price List
-            </div>
-            <div className="flex flex-col gap-3">
-                <div className="w-full flex justify-between">
-                    <span className="text-md text-gray-700">
-                        MRP (1 items)
-                    </span>
-                    <span className="text-md text-gray-500">
-                        20 $
-                    </span>
-                </div>
-                <div className="w-full flex justify-between">
-                    <span className="text-md text-gray-700">
-                        Delivery Charges
-                    </span>
-                    <span className="text-md text-gray-500">
-                        50 $
-                    </span>
-                </div>
-                <div className="w-full flex justify-between">
-                    <span className="text-md text-gray-700">
-                        Total
-                    </span>
-                    <span className="text-md text-gray-500">
-                        70 $
-                    </span>
-                </div>
-            </div>
-            <div className="w-full h-full flex-1">
-
-            </div>
-            <div className="w-full h-12">
-                <button className="w-full h-full bg-slate-900 text-white uppercase">Checkout</button>
-            </div>
-        </div>
-
     </>
 }
 
@@ -1344,4 +1306,251 @@ export const Wishlist = () => {
         </div>
 
     </>
+}
+
+export const ManageSellerOrders = () => {
+    const { user } = useGenerationState()
+
+    const router = useRouter()
+
+    const [order, setOrder] = useState<Array<any>>([])
+
+    const getSellerOrders = async () => {
+        const response = await fetch(`http://localhost:8080/api/seller/orders/${localStorage.getItem("token")}`)
+        const res = await response.json()
+        if (res.success) {
+            setOrder([...res.orders])
+        }
+    }
+
+    useEffect(() => {
+        if (!user || user.userType !== "seller") {
+            router.replace("/")
+        } else {
+            getSellerOrders()
+        }
+    }, [])
+
+    return <>
+
+        <>
+
+            <div>
+                {
+                    order.map((e) => <ManageSellerOrdersList id={e} />)
+                }
+            </div>
+
+        </>
+
+    </>
+
+}
+
+export const ManageSellerOrdersList = ({ id }: { id: string }) => {
+
+    const [products, setProducts] = useState<Array<any>>([])
+
+    const getProducts = async () => {
+        const response = await fetch(
+            `http://localhost:8080/api/order/seller/${localStorage.getItem('token')}/${id}`
+        )
+        const res = await response.json()
+        console.log(res)
+        if (res.success) {
+            setProducts([...res.products])
+        }
+    }
+
+    useEffect(() => {
+        getProducts()
+    }, [])
+
+    return <>
+
+        {
+            products.map((e) => <ManageSellerOrderCard orderId={id} status={e.orderStatus} productId={e.productId} quantity={e.quantity} />)
+        }
+
+    </>
+}
+
+export const ManageSellerOrderCard = ({ productId, orderId, quantity, status }: { productId: string, orderId: string, quantity: string, status: string }) => {
+
+    const [product, setProduct] = useState<any>()
+
+    const getProduct = async () => {
+        const response = await fetch(`http://localhost:8080/api/product/${productId}`)
+        const res = await response.json();
+        if (res.success) [
+            setProduct(res.product)
+        ]
+    }
+
+    useEffect(() => { getProduct() }, [])
+
+    return <>
+        {
+            product ?
+                <Link href={`/manage/orders/${orderId}/${productId}`} className="w-1/5 p-4 bg-gray-50 flex flex-col gap-3 rounded">
+                    <div className="w-full aspect-square rounded bg-white flex justify-center items-center overflow-hidden">
+                        <img className="w-full" src={`http://localhost:8080/${productId}/${product.mainImage.imageName}`} alt="" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <div className="text-xl font-medium text-gray-700">
+                            {product.name}
+                        </div>
+                        <div className="text-lg text-gray-500">
+                            {quantity}
+                        </div>
+                        <div className={`${status == 'cancelled' ? "text-red-600" : "text-green-600"}`}>
+                            {status}
+                        </div>
+
+                    </div>
+                </Link> :
+                null
+        }
+
+    </>
+}
+
+export const BecomeAClient = () => {
+
+    const { setUser, setLoggedIn } = useGenerationState()
+
+    const router = useRouter()
+
+    const clickHandler = async () => {
+        const response = await fetch("http://localhost:8080/api/seller/user/to/seller", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(
+                {
+                    token: localStorage.getItem("token")
+                }
+            )
+        })
+        const res = await response.json()
+        if (res.success) {
+            localStorage.removeItem("token")
+            setUser(undefined)
+            setLoggedIn(false)
+            router.replace("/login")
+        }
+    }
+
+    return <button onClick={() => { clickHandler() }} className="flex flex-row gap-3 items-center w-fit rounded-full px-3 text-xl text-gray-700 py-2 hover:bg-gray-100 transition duration-100">
+        <span className=" ">
+            Become A Seller
+        </span> {RightArrowSVG}
+    </button>
+
+}
+
+export const OrdersList = () => {
+
+    const [orders, setOrders] = useState<Array<any>>([])
+
+    const getOrder = async () => {
+        const response = await fetch(`http://localhost:8080/api/user/order/${localStorage.getItem("token")}`)
+        const res = await response.json()
+        if (res.success) {
+            setOrders([...res.orders])
+        }
+    }
+
+    useEffect(() => { getOrder() }, [])
+
+    return <>
+
+        <div className="flex flex-row gap-10 justify-between flex-wrap h-full w-full">
+            {
+                orders.map((e) => <OrderProductsIds id={e} />)
+            }
+        </div>
+
+    </>
+}
+
+export const OrderProductsIds = ({ id }: { id: string }) => {
+
+    const [product, setProduct] = useState<Array<any>>([])
+
+    const getOrderProducts = async () => {
+        const response = await fetch(
+            `http://localhost:8080/api/order/products/${id}`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(
+                    {
+                        token: localStorage.getItem('token')
+                    }
+                )
+            }
+        )
+        const res = await response.json()
+        if (res.success) {
+            setProduct([...res.orders])
+        }
+    }
+
+    useEffect(() => {
+
+        getOrderProducts()
+
+    }, [])
+
+    return <>
+
+        {product.map((e) => <OrderCard product={e} order={id} />)}
+
+    </>
+
+
+}
+
+export const OrderCard = ({ product, order }: { product: any, order: any }) => {
+    return <>
+
+        <Link href={`/orders/${order}/${product.product._id}`} className="w-1/5 h-min bg-gray-50 rounded p-4 flex flex-col gap-2">
+            <div className="w-full rounded bg-white aspect-square flex justify-center items-center overflow-hidden">
+                <img src={`http://localhost:8080/${product.product._id}/${product.product.mainImage.imageName}`} className="w-full" alt="" />
+            </div>
+            <div>
+                <div className="text-xl font-medium text-gray-700 line-clamp-1 w-full text-ellipsis">
+                    {product.product.name}
+                </div>
+                <div className="text-sm font-medium text-gray-700">
+                    Quantity : {product.quantity}
+                </div>
+                <div className={`${product.status == "cancelled" ? "text-red-600" : "text-green-600"}`}>
+                    {product.status}
+                </div>
+            </div>
+        </Link>
+
+    </>
+}
+
+export const ReviewPortion = ({ productId }: { productId: string }) => {
+
+    const { loggedIn } = useGenerationState()
+
+    const loadReviews = async () => {
+
+    }
+
+    return <>
+        {
+            loggedIn ? <></> : null
+        }
+    </>
+
+
 }

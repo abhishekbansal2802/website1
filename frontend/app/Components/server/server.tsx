@@ -18,7 +18,7 @@ export const ProductCardClient = ({ product }: { product: any }) => {
     return <Link className="w-1/5 p-4 h-min bg-gray-50 rounded shadow-sm flex flex-col gap-4 flex-shrink-0" href={`products/${product._id}`}>
         <div className="w-full">
 
-            <div className="w-full flex justify-center items-center aspect-square bg-white rounded">
+            <div className="w-full flex overflow-hidden justify-center items-center aspect-square bg-white rounded">
                 <img src={`http://localhost:8080/${product._id}/${product.mainImage.imageName}`} alt="" />
             </div>
             <div className="w-full h-16 flex flex-col gap-2">
@@ -45,8 +45,8 @@ export const FeaturesCard = ({ img, title, content, rev }: { img: string, title:
     return <>
 
         <div className={`flex gap-2 w-full h-64 ${rev ? "flex-row" : "flex-row-reverse"}`}>
-            <div className="h-full aspect-square shadow rounded flex justify-center items-center" >
-                <img src={img} />
+            <div className="h-full aspect-square overflow-hidden shadow rounded flex justify-center items-center" >
+                <img src={img} className="w-full" />
             </div>
             <div className="flex flex-1 flex-col gap-2">
                 <div className="text-lg text-gray-700 font-medium">

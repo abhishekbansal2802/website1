@@ -161,4 +161,41 @@ router.put("/delist/:id/:token", async (req, res) => {
     }
 })
 
+router.put("/user/to/seller", async (req, res) => {
+    const { token } = req.body;
+    if (!token) return errorHandler(res, 401, "error not authorized")
+    const { id } = jwt.decode(token, process.env.SECRET_KEY)
+    if (!id) return errorHandler(res, 401, "not authorized")
+    try {
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not authorized")
+        user.userType = "seller"
+        await user.save()
+        const seller = await SellerModel.create(
+            {
+                email: user.email,
+                userId: user._id,
+            }
+        )
+        return res.status(200).json({ success: true, message: "user is sent as seller" })
+    }
+    catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.get("/orders/:token", async (req, res) => {
+    const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+    if (!id) return errorHandler(res, 404, "id not found")
+    try {
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 404, "user not found")
+        const seller = await SellerModel.findOne({ userId: user._id })
+        if (!seller) return errorHandler(res, 401, "seller error")
+        return res.status(200).json({ success: true, message: "orders fetched", orders: seller.orders })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
 module.exports = router;

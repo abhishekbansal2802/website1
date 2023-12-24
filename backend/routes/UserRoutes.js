@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
 const path = require("path");
 const ProductModel = require("../models/ProductModel");
+const AddressModel = require("../models/AddressModel");
 
 // initializations
 const router = expresss.Router()
@@ -219,6 +220,76 @@ router.get("/wishlist/:token", async (req, res) => {
         if (!user) return errorHandler(res, 401, "user not found")
         const products = await ProductModel.find({ _id: user.wishlist })
         return res.status(200).json({ success: true, message: "wishlist got", products })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.get("/selected/address/:token", async (req, res) => {
+    const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+    if (!id) return errorHandler(res, 401, "error Parsing id")
+    try {
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        if (!user.selectedAddress) return errorHandler(res, 401, "no address selected")
+        const address = await AddressModel.findById(user.selectedAddress)
+        return res.status(200).json({ success: true, message: "address fetched", address })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.put("/selected/address/:token/:id", async (req, res) => {
+    const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+    if (!id) return errorHandler(res, 401, "data not foudn")
+    try {
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        const address = await AddressModel.findById(req.params.id)
+        if (!address) return errorHandler(res, 404, "address not found")
+        user.selectedAddress = address._id
+        await user.save()
+        return res.status(200).json({ success: true, message: "sent successfully" })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.get("/cart/price/:token", async (req, res) => {
+    const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+    if (!id) return errorHandler(res, 401, "not found")
+    try {
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "user not found")
+        const productToIds = {}
+        const productIds = user.cart.map((e) => {
+            productToIds[e.productId.toString()] = e.quantity
+            return e.productId
+        })
+        const products = await ProductModel.find({ _id: productIds })
+        let price = 0
+        for (const product of products) {
+            price += product.price * productToIds[product._id.toString()]
+        }
+        return res.status(200).json({
+            success: true, message: "price fetched", price: {
+                MRP: price,
+                delivery: 200,
+                subtotal: price + 200
+            }
+        })
+    } catch (err) {
+        return errorHandler(res)
+    }
+})
+
+router.get("/order/:token", async (req, res) => {
+    const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
+    if (!id) return errorHandler(res, 401, "not foudn")
+    try {
+        const user = await UserModel.findById(id)
+        if (!user) return errorHandler(res, 401, "not found")
+        return res.status(200).json({ success: true, message: "orders sent", orders: user.orders })
     } catch (err) {
         return errorHandler(res)
     }
