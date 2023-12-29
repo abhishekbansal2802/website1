@@ -1233,26 +1233,9 @@ export const AddToWishlist = ({ id }: { id: string }) => {
         return false
     }
 
-    const removeWishlist = async () => {
-        if (!loggedIn) return
-        const wish = await checkWishlist()
-        if (!wish) return
-        const response = await fetch(
-            `http://localhost:8080/api/user/wishlist/${localStorage.getItem("token")}/${id}`,
-            {
-                method: "DELETE"
-            }
-        )
-        const res = await response.json()
-        if (res.success) {
-            setWishlist(false)
-        }
-    }
 
     const addToWishlist = async () => {
         if (!loggedIn) return
-        const wish = await checkWishlist()
-        if (wish) return
         const response = await fetch(
             `http://localhost:8080/api/user/wishlist/${localStorage.getItem("token")}/${id}`,
             {
@@ -1261,7 +1244,7 @@ export const AddToWishlist = ({ id }: { id: string }) => {
         )
         const res = await response.json()
         if (res.success) {
-            setWishlist(true)
+            setWishlist(await checkWishlist())
         }
     }
 
@@ -1273,7 +1256,7 @@ export const AddToWishlist = ({ id }: { id: string }) => {
     return <>
 
         <div className="absolute top-4 right-4">
-            {wishlist ? <button onClick={() => { removeWishlist() }} className="p-2 rounded-full border border-red-100 bg-red-100 fill-red-600">
+            {wishlist ? <button onClick={() => { addToWishlist() }} className="p-2 rounded-full border border-red-100 bg-red-100 fill-red-600">
                 {heartFillSVG}
             </button> : < button onClick={() => { addToWishlist() }} className="p-2 rounded-full border border-red-100 bg-red-100 fill-red-600">
                 {heartSVG}

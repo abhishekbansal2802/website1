@@ -190,24 +190,16 @@ router.put("/wishlist/:token/:id", async (req, res) => {
         if (!id) return errorHandler(res, 401, " not enough")
         const user = await UserModel.findById(id)
         if (!user) return errorHandler(res, 401, "user not found")
-        user.wishlist.push(req.params.id)
+        const item = user.wishlist.find((e) => e.toString() === req.params.id.toString())
+        if (item) {
+            user.wishlist = user.wishlist.filter((e) => e.toString() !== req.params.id.toString())
+        } else {
+            user.wishlist.push(req.params.id)
+        }
         await user.save()
         return res.status(200).json({ success: true, message: "product added" })
     } catch (err) {
-        return errorHandler(res)
-    }
-})
-
-router.delete("/wishlist/:token/:id", async (req, res) => {
-    try {
-        const { id } = jwt.decode(req.params.token, process.env.SECRET_KEY)
-        if (!id) return errorHandler(res, 401, " not enough")
-        const user = await UserModel.findById(id)
-        if (!user) return errorHandler(res, 401, "user not found")
-        user.wishlist = user.wishlist.filter((e) => e.toString() !== req.params.id.toString())
-        await user.save()
-        return res.status(200).json({ success: true, message: "product added" })
-    } catch (err) {
+        console.log(err);
         return errorHandler(res)
     }
 })
